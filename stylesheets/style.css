@@ -1,11 +1,13 @@
 html, body {
     min-height: 100% !important;
     height: 100%;
+    overflow: hidden;
 }
 .backgroundImg {
-  background-image: url("../images/bg.jpg");
+  /* background-image: url("../images/bg.jpg"); */
   background-repeat: no-repeat;
   background-size: cover;
+  background-color: transparent;
   
 }
 .custNav {
@@ -32,7 +34,7 @@ html, body {
 	box-shadow: 2px 2px 5px black;
 	border: 1px solid black;
 	border-radius: 15px;
-	width: 50%;
+	width: 60%;
 	height: 40px; 
 	font-size: arial;
 	background-color: transparent;
@@ -89,7 +91,13 @@ html, body {
 	}
 	.typewriter h1{
 		font-size: 11px;
-	}
+  }
+  #imeiNo {
+    width: 80%;
+  }
+  #service{
+    width: 80%;
+  }
 }
 
 /* DEMO-SPECIFIC STYLES */

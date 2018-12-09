@@ -14,11 +14,11 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 }
 
 if(isset($_POST['btnSubmit'])){
-	serviceExecute();
+	serviceExecute($userLogin);
 }
 
 
-function serviceExecute() {
+function serviceExecute($userLogin) {
 
 	include_once 'db_config.php';
 
@@ -29,25 +29,39 @@ function serviceExecute() {
 	}
 
 
+	if($userLogin){
+
 		$serviceValue 	= $_POST["service"];
 		$imei 			= $_POST["imeiNo"];
 
+		$userId			= $_SESSION["userId"];
+
+		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
+		$row = mysqli_fetch_array($result);
+		//echo $row['name'];
+
+		$amount = $row['amount']; 
+		$orderId = 'O'.uniqid();
+
 		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
 
-			$sql 	= "INSERT INTO orders (userId,IMEI,serviceId,amount) VALUES (25,'$imei','$serviceValue',250)";
+			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
 		
 			if(mysqli_query($con, $sql)){
 				echo "Records inserted successfully.";
 				$serviceValue="";
 				$imei="";
 		
-				header('Location: register.php');
+				//header('Location: register.php');
 			} else{
 				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
 			}
 		
 		}
 	
+	}else{
+		header('Location: login.php');
+	}
 }
 
 
@@ -72,7 +86,7 @@ function serviceExecute() {
 	<link rel="stylesheet" type="text/css" href="stylesheets/glyphicon.css">
 	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
-<body>
+<body style="background-image: url('images/bg.jpg');background-repeat: no-repeat;background-size: cover;">
 	<!-- -----------------------NAVBAR----------------------- -->
 	<nav class="navbar navbar-expand-lg custNav">
 		<!-- LOGO -->
@@ -86,10 +100,10 @@ function serviceExecute() {
 		<div class="collapse navbar-collapse" id="togglerBar">
 		    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
 		      <li class="nav-item active">
-		        <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+		        <a class="nav-link" href="https://www.guerrasenterprises.com">Home <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item">
-		        <a class="nav-link" href="#">Unlock</a>
+		        <a class="nav-link" href="index.php">Unlock</a>
 		      </li>
 		      <li class="nav-item">
 		        <a class="nav-link" href="orders.php">Orders</a>
@@ -103,31 +117,25 @@ function serviceExecute() {
 		          <span class="glyphicon glyphicon-user" ></span>
 		        </a>
 		        <ul class="dropdown-menu">
-
-							<?php if(($userLogin)){ ?>
-								<li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
+				<?php if(($userLogin)){ ?>
+					<li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
 		          	<li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
 		          	<li class="drpItems"><a class="dropdown-item dropList" href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>	
-							<?php } ?>
+				<?php } ?>
 
-							<?php if(!($userLogin)){ ?>
-								<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-								<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
-							<?php } ?>
-
-
-
-
-		          
+				<?php if(!($userLogin)){ ?>
+					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+				<?php } ?>
 		        </ul>
 		      </li>
 		    </ul>
 	  	</div>
 
 	</nav>
-	<!-- -----------------------END OF NAVBAR----------------------- -->
+	<!-- -----------------------END OF NAVBAR------------------------->
 
-	<div class="jumbotron d-flex align-items-center backgroundImg" style="height: 100%;">
+	<div class="jumbotron d-flex align-items-center backgroundImg" style="height: 100%; padding: 0;">
 		<!-- <img src="images/back.jpg" id="backgroundImg"> -->
 		<div class="container text-center">
 			<div class="typewriter">

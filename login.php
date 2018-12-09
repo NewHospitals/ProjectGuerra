@@ -14,21 +14,21 @@ if ( !isset($_POST['username'], $_POST['password']) ) {
 	//die ('Username and/or password does not exist!');
 }
 
-if ($stmt = $con->prepare('SELECT id, password FROM accounts WHERE username = ?')) {
+if ($stmt = $con->prepare('SELECT userId, password FROM accounts WHERE username = ?')) {
 
 	$stmt->bind_param('s', $_POST['username']);
 	$stmt->execute(); 
 	$stmt->store_result(); 
 
 	if ($stmt->num_rows > 0) {
-		$stmt->bind_result($id, $password);
+		$stmt->bind_result($userId, $password);
 		$stmt->fetch();      
 
 		if (password_verify($_POST['password'], $password)) {
 
 			$_SESSION['loggedin']   = TRUE;
 			$_SESSION['name']       = $_POST['username'];
-			$_SESSION['id']         = $id;
+			$_SESSION['userId']     = $userId;
             
             //echo 'Welcome ' . $_SESSION['name'] . '!';
 			header('Location: index.php');
@@ -49,6 +49,8 @@ $_POST = array();
 
 ?>
 
+
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -62,9 +64,9 @@ $_POST = array();
         <!-- Custom Stylesheet -->
         <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
     </head>
-    <body class="text-center">
+    <body>
         <!-- -----------------------NAVBAR----------------------- -->
-	    <nav class="navbar navbar-expand-lg custNav">
+        <nav class="navbar navbar-expand-lg custNav">
             <!-- LOGO -->
             <a class="navbar-brand" href="#">
                 <img src="images/logo.png" style="max-width:50px;">
@@ -75,62 +77,49 @@ $_POST = array();
             </button>
             <div class="collapse navbar-collapse" id="togglerBar">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                    <li class="nav-item active">
-                    <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://www.guerrasenterprises.com">Home <span class="sr-only">(current)</span></a>
                         </li>
                         <li class="nav-item">
-                    <a class="nav-link" href="index.html">Unlock</a>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link" href="#">Orders</a>
-                    </li>
+                    <a class="nav-link" href="index.php">Unlock</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="orders.php">Orders</a>
+                </li>
                 </ul>
                 <!-- USERNAME DROPDOWN -->
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="nav-item dropdown">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="margin-right :60px;">
-                        User
-                        <span class="glyphicon glyphicon-user" ></span>
+                    User
+                    <span class="glyphicon glyphicon-user" ></span>
                     </a>
                     <ul class="dropdown-menu">
-                        
-                    
-								<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-								<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
-							
-
-                        
-                        
-                        
-                        
-                        
-                        
-                        
+                        <li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
+						<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
                     </ul>
-                    </li>
+                </li>
                 </ul>
             </div>
+
         </nav>
         <!-- -----------------------END OF NAVBAR------------------------->
-        <div class="form-signin">
+        <div class="container text-center">
+            <div class="form-signin">
                 <!-- <img class="mb-4" src="images/logo.png" alt="logo" width="100" height="100"> -->
                 <img class="mb-4" src="images/logo.png" alt="logo" width="100" height="100">
                 <h1 class="h3 mb-3 font-weight-bold">Welcome</h1>
                 <h4 class="h4 mb-4 font-weight-light">Sign in to continue</h4>
-
                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                
                 <label for="inputEmail" class="sr-only">Username</label>
-                <input name="username" type="name" id="email_field" class="form-control" placeholder="Username" required autofocus>
+                <input type="name" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
                 <label for="inputPassword" class="sr-only">Password</label>
-                <input name="password" type="password" id="password_field" class="form-control" placeholder="Password" required>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
                 <div class="checkbox mb-3">
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit" id="loginBtn">Sign in</button>
-                <p class="mt-5 mb-3 text-danger" id="loginStat">Invalid Username/Password</p>
-
+                <p class="mt-5 mb-3 text-danger" id="loginStat" style="display:none;">Invalid Username/Password</p>
                 </form>
-
                 <!-- Footer -->
                 <br>
                 <footer class="page-footer font-small blue">
@@ -138,8 +127,8 @@ $_POST = array();
                         <a href="https://www.fiverr.com/s2/2eeb646318?utm_source=CopyLink_Mobile"> Shakye</a>
                     </div>
                 </footer>
-              </div>	
-              
+            </div>	
+        </div>      
 
         <script src="scripts/home.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

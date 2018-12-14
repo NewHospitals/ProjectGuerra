@@ -3,6 +3,13 @@ html, body {
     height: 100%;
     overflow: hidden;
 }
+.borderless td{
+  border-top: none;
+}
+.borderless td input{
+  border-radius: 15px;
+  width: 80%;
+}
 .backgroundImg {
   /* background-image: url("../images/bg.jpg"); */
   background-repeat: no-repeat;

@@ -118,8 +118,8 @@ function serviceExecute($userLogin) {
 		        </a>
 		        <ul class="dropdown-menu">
 				<?php if(($userLogin)){ ?>
-					<li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
-		          	<li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+					<li class="drpItems"><a class="dropdown-item dropList" href="wallet.php"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
+		          	<li class="drpItems"><a class="dropdown-item dropList" href="account.php"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
 		          	<li class="drpItems"><a class="dropdown-item dropList" href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>	
 				<?php } ?>
 

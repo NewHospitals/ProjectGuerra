@@ -25,13 +25,16 @@
             <div class="collapse navbar-collapse" id="togglerBar">
                 <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                     <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="nav-item">
-                    <a class="nav-link" href="index.html">Unlock</a>
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link" href="orders.html">Orders</a>
+                        <a class="nav-link" href="index.html">Unlock</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.html">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="orders.html">Contact us</a>
                     </li>
                 </ul>
                 <!-- USERNAME DROPDOWN -->
@@ -43,7 +46,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li class="drpItems"><a class="dropdown-item dropList" href="wallet.html"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
-                        <li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                        <li class="drpItems"><a class="dropdown-item dropList" href="settings.html"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
                         <li class="drpItems"><a class="dropdown-item dropList" href="#"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
                     </ul>
                     </li>
@@ -71,32 +74,12 @@
                 </div>
             </div>
             <br><br>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3>Add funds</h3>
-                        <hr>
-                    </div>
-                </div>
-            </div>
-            <br><br>
             <div class="container text-center">
                 <div class="row">
                     <div class="col-md-12">
-                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-                            <input type="hidden" name="cmd" value="_s-xclick">
-                            <input type="hidden" name="hosted_button_id" value="HMNTC78P7Z4F6">
-                            <input type="hidden" name="on0" value="Amount">Amount
-                            <select name="os0">
-                            <option value="Option 1">Option 1 $10.00 USD</option>
-                            <option value="Option 2">Option 2 $25.00 USD</option>
-                            <option value="Option 3">Option 3 $50.00 USD</option>
-                            <option value="Option 4">Option 4 $100.00 USD</option>
-                            </select> 
-                            <br><br>
-                            <input type="hidden" name="currency_code" value="USD">
-                            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                            <img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                        <form>
+                            <input type="number" placeholder="Enter the amount">
+                            <input type="submit">
                         </form>
                     </div>
                 </div>

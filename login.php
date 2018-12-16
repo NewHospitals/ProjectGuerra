@@ -122,6 +122,7 @@ $_POST = array();
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit" id="loginBtn">Sign in</button>
                 <p class="mt-5 mb-3 text-danger" id="loginStat" style="display:none;">Invalid Username/Password</p>
+                <br>
                 <a href="forgot_password.php">Forgot your password?</a>
                 
                 <?php if($error){ ?>

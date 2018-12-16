@@ -24,33 +24,11 @@ function serviceExecute($userLogin) {
 		$serviceValue 	= $_POST["service"];
 		if(validate_imei($_POST["imeiNo"])){
 			$imei 		= $_POST["imeiNo"];
-			echo $imei;
+      $service = $serviceValue; // APi Service iD
+			$format = "json"; // $format = "html"; display result in JSON or HTML format
+			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // APi Key
 
-			$format = "json"; 										// Display result in JSON or HTML format
-			if(!filter_var($imei, FILTER_VALIDATE_EMAIL)){
-				$imei = preg_replace("/[^a-zA-Z0-9]+/", "", $imei);	// Remove unwanted characters for IMEI/SN
-			} 
-			$service = $_POST['service']; 							// Service ID
-			$service = preg_replace("/[^0-9]+/", "", $service); 	// Remove unwanted characters for Service ID
-			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; 				// Sickw.com APi Key
-
-			if(isset($_POST['service']) && isset($_POST['imei'])){
-				if(strlen($api) !== 31){
-					echo "<font color=\"red\"><b>API KEY is Wrong! Please set APi KEY!</b></font>"; 
-					die;
-				}
-				if(strlen($service) > 3 || $service > 250){
-					echo "<font color=\"red\"><b>Service ID is Wrong!</b></font>"; 
-					die;
-				}
-				if(!filter_var($imei, FILTER_VALIDATE_EMAIL)){
-					if(strlen($imei) < "11" || strlen($imei) > "15"){
-						echo "<font color=\"red\"><b>IMEI or SN is Wrong!</b></font>"; 
-						die;
-					}
-				}
-			}
-			/*$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
+			$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
@@ -58,7 +36,7 @@ function serviceExecute($userLogin) {
 			$result = curl_exec($curl);
 			curl_close($curl);
 
-			echo PHP_EOL."<br/><br/>".PHP_EOL.$result; */				// Here the result is printed*/
+			echo $result;
 			
 		}else{
 			$error = "Invalid IMEI No. Please check again";

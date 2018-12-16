@@ -103,7 +103,7 @@ if($_SESSION['loggedin']==false){
             <!-- Order Table -->
             <div class="container">
                 <div class="row">
-                    <table class="table table-responsive">
+                    <table class="table borderless">
                         <tr>
                             <th><span class="labels">Date</th>
                             <th><span class="labels">IMEI</th>
@@ -163,25 +163,23 @@ if($_SESSION['loggedin']==false){
 }
 
 
-?>
-                        
-                            
-                        
-                        
+?>                
                     </table>
+                    <br>
                     <ul class="pagination">
-    <li><a href="?pageno=1">First</a></li>
-    <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-        <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>">Prev</a>
-    </li>
-    <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-        <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next</a>
-    </li>
-    <li><a href="?pageno=<?php echo $total_pages; ?>">Last</a></li>
-</ul>
+                        <li><a href="?pageno=1"><span class="glyphicon glyphicon-arrow-left"></span>First</a></li>
+                        <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
+                            <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><span class="glyphicon glyphicon-chevron-left"></span>Prev </a>
+                        </li>
+                        <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
+                            <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>"> Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+                        </li>
+                        <li><a href="?pageno=<?php echo $total_pages; ?>">Last<span class="glyphicon glyphicon-arrow-right"></a></span></li>
+                    </ul>
                 </div>
             </div>
         </div>
+        <br><br>
         <script src="scripts/home.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>

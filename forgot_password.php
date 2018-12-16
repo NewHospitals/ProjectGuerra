@@ -1,9 +1,6 @@
 <?php
-
 session_start();
-
 $userLogin;
-
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
 } else {
@@ -11,9 +8,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 }
 
 include_once 'db_config.php';
-
 $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
 if ( mysqli_connect_errno() ) {
 	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
@@ -61,28 +56,21 @@ function mailresetlink($to,$token){
     <title>Forgot Password For unlock.guerraenterprises.com</title>
     </head>
         <body>
-        <p>Click on the given link to reset your password <a href="'.$uri.'/reset.php?token='.$token.'">Reset Password</a></p>
+        <p>Click on the given link to reset your password <a href="'.$uri.'/unlock/reset_password.php?token='.$token.'">Reset Password</a></p>
         </body>
     </html>
     ';
 
-    /*
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
-    $headers .= 'From: Admin<webmaster@example.com>' . "\r\n";
-    $headers .= 'Cc: Admin@example.com' . "\r\n";
-    */
-
-    $headers = 'From:noreply@projectguerra.000webhostapp.com' . "\r\n";
+    $headers .= 'From:noreply@projectguerra.000webhostapp.com' . "\r\n";
 
     if(mail($to,$subject,$message,$headers)){
 	    echo "We have sent the password reset link to your  email id <b>".$to."</b>"; 
     }else{
         echo "Error: Message not accepted";
     }
-
 }
-
 ?>
 
 

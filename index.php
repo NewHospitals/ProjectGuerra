@@ -1,7 +1,6 @@
 <?php
-
 session_start();
-
+include_once 'db_config.php';
 $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
@@ -10,53 +9,48 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = false;
 }
 
-include_once 'db_config.php';
-
 $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
 if ( mysqli_connect_errno() ) {
 	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
-
-
-
-
 
 if(isset($_POST['btnSubmit'])){
 	serviceExecute($userLogin);
 }
 
-
-
 function serviceExecute($userLogin) {
-
-	
-
-	
-
-
+	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);	
 	if($userLogin){
-
 		$serviceValue 	= $_POST["service"];
-
 		if(validate_imei($_POST["imeiNo"])){
 			$imei 		= $_POST["imeiNo"];
 			echo $imei;
 
-			$format = "json"; // Display result in JSON or HTML format
+			$format = "json"; 										// Display result in JSON or HTML format
 			if(!filter_var($imei, FILTER_VALIDATE_EMAIL)){
-			$imei = preg_replace("/[^a-zA-Z0-9]+/", "", $imei);} // Remove unwanted characters for IMEI/SN
-			$service = $_POST['service']; // Service ID
-			$service = preg_replace("/[^0-9]+/", "", $service); // Remove unwanted characters for Service ID
-			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // Sickw.com APi Key
+				$imei = preg_replace("/[^a-zA-Z0-9]+/", "", $imei);	// Remove unwanted characters for IMEI/SN
+			} 
+			$service = $_POST['service']; 							// Service ID
+			$service = preg_replace("/[^0-9]+/", "", $service); 	// Remove unwanted characters for Service ID
+			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; 				// Sickw.com APi Key
 
 			if(isset($_POST['service']) && isset($_POST['imei'])){
-			if(strlen($api) !== 31){echo "<font color=\"red\"><b>API KEY is Wrong! Please set APi KEY!</b></font>"; die;}
-			if(strlen($service) > 3 || $service > 250){echo "<font color=\"red\"><b>Service ID is Wrong!</b></font>"; die;}
-			if(!filter_var($imei, FILTER_VALIDATE_EMAIL)){
-			if(strlen($imei) < "11" || strlen($imei) > "15"){echo "<font color=\"red\"><b>IMEI or SN is Wrong!</b></font>"; die;}}
-
-			$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
+				if(strlen($api) !== 31){
+					echo "<font color=\"red\"><b>API KEY is Wrong! Please set APi KEY!</b></font>"; 
+					die;
+				}
+				if(strlen($service) > 3 || $service > 250){
+					echo "<font color=\"red\"><b>Service ID is Wrong!</b></font>"; 
+					die;
+				}
+				if(!filter_var($imei, FILTER_VALIDATE_EMAIL)){
+					if(strlen($imei) < "11" || strlen($imei) > "15"){
+						echo "<font color=\"red\"><b>IMEI or SN is Wrong!</b></font>"; 
+						die;
+					}
+				}
+			}
+			/*$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
@@ -64,42 +58,30 @@ function serviceExecute($userLogin) {
 			$result = curl_exec($curl);
 			curl_close($curl);
 
-			echo PHP_EOL."<br/><br/>".PHP_EOL.$result; // Here the result is printed
-			}
+			echo PHP_EOL."<br/><br/>".PHP_EOL.$result; */				// Here the result is printed*/
+			
 		}else{
 			$error = "Invalid IMEI No. Please check again";
-
 			$_SESSION['error'] = $error;
-
-			//echo $error;
 		}
 
-
 		$userId			= $_SESSION["userId"];
-
 		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
 		$row = mysqli_fetch_array($result);
-		//echo $row['name'];
 
 		$amount = $row['amount']; 
 		$orderId = 'O'.uniqid();
 
 		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-
 			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
-		
 			if(mysqli_query($con, $sql)){
 				echo "Records inserted successfully.";
 				$serviceValue="";
-				$imei="";
-		
-				//header('Location: register.php');
+				$imei="";		
 			} else{
 				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
 			}
-		
 		}
-	
 	}else{
 		header('Location: login.php');
 	}
@@ -124,15 +106,11 @@ function validate_imei($imei){
 }
 
 function loadServices($serviceGroup){
-
 	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
 	$query = "SELECT * FROM services WHERE serviceGroup='$serviceGroup'";
 	$result = mysqli_query($con,$query);
 	return $result;
-
 }
-
-
 ?>
 
 
@@ -274,7 +252,7 @@ function loadServices($serviceGroup){
 					<?php
 						$result = loadServices('iPHONE SERVICES');
 						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+    						echo "<option value='".$row['serviceValue']."'>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
 						}
 					?>  
 					</optgroup>
@@ -283,7 +261,7 @@ function loadServices($serviceGroup){
 					<?php
 						$result = loadServices('STATUS SERVICES');
 						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+    						echo "<option value='".$row['serviceValue']."'>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
 						}
 					?>  
 					</optgroup>
@@ -292,7 +270,7 @@ function loadServices($serviceGroup){
 					<?php
 						$result = loadServices('GENERIC SERVICES');
 						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+    						echo "<option value='".$row['serviceValue']."'>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
 						}
 					?>  
 					</optgroup>
@@ -301,7 +279,7 @@ function loadServices($serviceGroup){
 					<?php
 						$result = loadServices('UNLOCK SERVICES');
 						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+    						echo "<option value='".$row['serviceValue']."'>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
 						}
 					?>  
 					</optgroup>

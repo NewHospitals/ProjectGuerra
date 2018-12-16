@@ -1,26 +1,16 @@
 <?php
-
 session_start();
-
 $userLogin;
-
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
 } else {
 	$userLogin = false;
 }
-
-if($_SESSION['loggedin']==false){
-    header('Location:login.php');
+if(!$userLogin){
+    header("Location:login.php");
 }else{
-    include_once 'db_config.php';
-    $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-    if (mysqli_connect_errno()) {
-	    die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-    }
     $user = '';
 }
-
 ?>
 <!DOCTYPE html>
 <html>

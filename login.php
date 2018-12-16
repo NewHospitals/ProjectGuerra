@@ -1,23 +1,15 @@
 <?php
-
 session_start();
-
 include_once 'db_config.php';
-
 $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
 if ( mysqli_connect_errno() ) {
 	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
-
 if ( !isset($_POST['username'], $_POST['password']) ) {
 	//die ('Username and/or password does not exist!');
 }
-
 $error = false;
-
 if ($stmt = $con->prepare('SELECT userId, password FROM accounts WHERE username = ?')) {
-
 	$stmt->bind_param('s', $_POST['username']);
 	$stmt->execute(); 
 	$stmt->store_result(); 
@@ -27,21 +19,15 @@ if ($stmt = $con->prepare('SELECT userId, password FROM accounts WHERE username 
 		$stmt->fetch();      
 
 		if (password_verify($_POST['password'], $password)) {
-
 			$_SESSION['loggedin']   = TRUE;
 			$_SESSION['name']       = $_POST['username'];
 			$_SESSION['userId']     = $userId;
-            
-            //echo 'Welcome ' . $_SESSION['name'] . '!';
 			header('Location: index.php');
 		} else {
-            //echo 'Incorrect username and/or password!';
-            //header('Location: login.php');
             $error = true;
 		}
 	} else {
-        //echo 'Incorrect username and/or password!';
-        //header('Location: login.php');
+        
 	}
 	$stmt->close();
 } else {
@@ -121,7 +107,6 @@ $_POST = array();
                 <div class="checkbox mb-3">
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit" id="loginBtn">Sign in</button>
-                <p class="mt-5 mb-3 text-danger" id="loginStat" style="display:none;">Invalid Username/Password</p>
                 <br>
                 <a href="forgot_password.php">Forgot your password?</a>
                 

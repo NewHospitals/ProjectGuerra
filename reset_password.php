@@ -1,13 +1,32 @@
 <?php
-
 session_start();
-
+include_once 'db_config.php';
 $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
 } else {
 	$userLogin = false;
+}
+
+if(!isset($_GET['token'])){
+    header("Location:login.php");
+}
+
+if(!isset($_POST['password'])){
+    $token=$_GET['token'];
+    echo $token;
+    $query="SELECT email FROM tokens WHERE token='".$token."'";
+    $result=mysqli_query($con,$query);
+    while($row=mysqli_fetch_array($result)){
+        $email=$row['email'];
+    }
+    if($email!=''){
+        echo $email;
+        $_SESSION['email']=$email;
+    }
+}else{ 
+    
 }
     
 if(isset($_POST['resetBtn'])){
@@ -17,25 +36,6 @@ if(isset($_POST['resetBtn'])){
     include_once 'db_config.php';
     $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
     
-    /*
-    $email = '';
-    $password = '';*/
-    
-    if(!isset($_POST['password'])){
-        $token=$_GET['token'];
-        $query="SELECT email FROM tokens WHERE token='".$token."'";
-        $result=mysqli_query($con,$query);
-        while($row=mysqli_fetch_array($result)){
-            $email=$row['email'];
-        }
-    
-        if($email!=''){
-            $_SESSION['email']=$email;
-        }
-    }else{ 
-        //die("Invalid link or Password already changed");
-    }
-
     if(isset($_POST['password']) && isset($_SESSION['email'])){
         echo "in -----------> in";
         $email=$_SESSION['email'];
@@ -46,24 +46,13 @@ if(isset($_POST['resetBtn'])){
         $query2="UPDATE accounts set password='".$password."' WHERE email='".$email."'";
         $result2=mysqli_query($con,$query2);
         if($result2){
-            //mysqli_query("UPDATE tokens set used=1 where token='".$token."'");
-            mysqli_query("DELETE FROM tokens WHERE token='".$token."'");
+            mysqli_query($con,"DELETE FROM tokens WHERE token='".$token."'");
             echo "Your password is changed successfully";
         }else{
             echo "An error occurred";
         }
     }
-
-
-
 }
-
-
-
-
-
-
-
 ?>
 
 

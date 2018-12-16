@@ -6,33 +6,50 @@ $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
-	//echo "Welcome to the member's area, " . $_SESSION['username'] . "!";
 } else {
 	$userLogin = false;
-	//echo "Please log in first to see this page.";
-	//header('Location: login.php');
 }
+
+include_once 'db_config.php';
+
+$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+
+if ( mysqli_connect_errno() ) {
+	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
+}
+
+
+
+
 
 if(isset($_POST['btnSubmit'])){
 	serviceExecute($userLogin);
 }
 
 
+
 function serviceExecute($userLogin) {
 
-	include_once 'db_config.php';
+	
 
-	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-	if ( mysqli_connect_errno() ) {
-		die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-	}
+	
 
 
 	if($userLogin){
 
 		$serviceValue 	= $_POST["service"];
-		$imei 			= $_POST["imeiNo"];
+
+		if(validate_imei($_POST["imeiNo"])){
+			$imei 		= $_POST["imeiNo"];
+			echo $imei;
+		}else{
+			$error = "Invalid IMEI No. Please check again";
+
+			$_SESSION['error'] = $error;
+
+			//echo $error;
+		}
+
 
 		$userId			= $_SESSION["userId"];
 
@@ -64,6 +81,32 @@ function serviceExecute($userLogin) {
 	}
 }
 
+function validate_imei($imei){
+	if (!preg_match('/^[0-9]{15}$/', $imei)) return false;
+	$sum = 0;
+	for ($i = 0; $i < 14; $i++){
+		$num = $imei[$i];
+		if (($i % 2) != 0){
+			$num = $imei[$i] * 2;
+			if ($num > 9){
+				$num = (string) $num;
+				$num = $num[0] + $num[1];
+			}
+		}
+		$sum += $num;
+	}
+	if ((($sum + $imei[14]) % 10) != 0) return false;
+	return true;
+}
+
+function loadServices($serviceGroup){
+
+	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+	$query = "SELECT * FROM services WHERE serviceGroup='$serviceGroup'";
+	$result = mysqli_query($con,$query);
+	return $result;
+
+}
 
 
 ?>
@@ -113,7 +156,12 @@ function serviceExecute($userLogin) {
 		    <ul class="nav navbar-nav navbar-right">
 		      <li class="nav-item dropdown">
 		        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="margin-right :60px;">
-		          User
+		          <?php if(isset($_SESSION['name'])){
+						echo $_SESSION['name'];
+					}else{
+						echo "User";
+					} 
+					?>
 		          <span class="glyphicon glyphicon-user" ></span>
 		        </a>
 		        <ul class="dropdown-menu">
@@ -124,8 +172,8 @@ function serviceExecute($userLogin) {
 				<?php } ?>
 
 				<?php if(!($userLogin)){ ?>
-					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-pencil'></span> Signup</a></li>
 				<?php } ?>
 		        </ul>
 		      </li>
@@ -143,9 +191,11 @@ function serviceExecute($userLogin) {
 			  <br><br>
 			</div>
 			<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-		  		<select name="service" id="service" onchange="check();">
+		  		
+				<select name="service" id="service" onchange="check();">
 					<option value="0" selected="selected">PLEASE CHOOSE CHECKER</option>
-					<optgroup label="iPHONE SERVICES">
+					<!--
+						<optgroup label="iPHONE SERVICES">
 						<option value="27">1.60$ - iPHONE GSX COMPLETE INFO - PICTURES</option>
 						<option value="102">0.20$ - iPHONE CARRIER S1</option>
 						<option value="101">0.20$ - iPHONE CARRIER S2</option>
@@ -195,10 +245,59 @@ function serviceExecute($userLogin) {
 						<option value="115">2.00$ - HTC INTERNATIONAL UNLOCK</option>
 						<option value="116">1.60$ - ZTE INTERNATIONAL UNLOCK</option>
 					</optgroup>
+					-->
+					<optgroup label="iPHONE SERVICES">
+					<?php
+						$result = loadServices('iPHONE SERVICES');
+						while ($row = mysqli_fetch_array($result)){
+    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+						}
+					?>  
+					</optgroup>
+
+					<optgroup label="STATUS SERVICES">
+					<?php
+						$result = loadServices('STATUS SERVICES');
+						while ($row = mysqli_fetch_array($result)){
+    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+						}
+					?>  
+					</optgroup>
+
+					<optgroup label="GENERIC SERVICES">
+					<?php
+						$result = loadServices('GENERIC SERVICES');
+						while ($row = mysqli_fetch_array($result)){
+    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+						}
+					?>  
+					</optgroup>
+
+					<optgroup label="UNLOCK SERVICES">
+					<?php
+						$result = loadServices('UNLOCK SERVICES');
+						while ($row = mysqli_fetch_array($result)){
+    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
+						}
+					?>  
+					</optgroup>
+				
+
+
+
 				</select>
 				<br><br>
 				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI">
-				<br><br><br>
+				<br><br>
+
+				<?php if(!empty($_SESSION['error'])){?>
+					<div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+    				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    					Invalid IMEI No. Please Check Again
+  					</div>
+				<?php } ?>
+
+				<?php $_SESSION['error']='';?>
                 <input name="btnSubmit" type="submit" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit">
 		  	</form>
 		</div>

@@ -6,64 +6,25 @@ $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
-	//echo "Welcome to the member's area, " . $_SESSION['username'] . "!";
 } else {
 	$userLogin = false;
-	//echo "Please log in first to see this page.";
-	//header('Location: login.php');
 }
 
-if(isset($_POST['btnSubmit'])){
-	serviceExecute($userLogin);
+if($_SESSION['loggedin']==false){
+    header('Location:login.php');
+}else{
+    include_once 'db_config.php';
+    $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+    if (mysqli_connect_errno()) {
+	    die ('Failed to connect to MySQL: ' . mysqli_connect_error());
+    }
+    $user = '';
 }
 
 
-function serviceExecute($userLogin) {
-
-	include_once 'db_config.php';
-
-	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-	if ( mysqli_connect_errno() ) {
-		die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-	}
-
-
-	if($userLogin){
-
-		$serviceValue 	= $_POST["service"];
-		$imei 			= $_POST["imeiNo"];
-
-		$userId			= $_SESSION["userId"];
-
-		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
-		$row = mysqli_fetch_array($result);
-		//echo $row['name'];
-
-		$amount = $row['amount']; 
-		$orderId = 'O'.uniqid();
-
-		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
-		
-			if(mysqli_query($con, $sql)){
-				echo "Records inserted successfully.";
-				$serviceValue="";
-				$imei="";
-		
-				//header('Location: register.php');
-			} else{
-				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-			}
-		
-		}
-	
-	}else{
-		header('Location: login.php');
-	}
-}
 ?>
+
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -76,55 +37,59 @@ function serviceExecute($userLogin) {
         <link rel="stylesheet" type="text/css" href="stylesheets/glyphicon.css">
         <!-- Custom Stylesheet -->
         <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+
+        <style>
+            body{
+                overflow:scroll;
+            }
+        </style>
     </head>
     <body>
         <!-- -----------------------NAVBAR----------------------- -->
-	<nav class="navbar navbar-expand-lg custNav">
-		<!-- LOGO -->
-	  	<a class="navbar-brand" href="#">
-	  		<img src="images/logo.png" style="max-width:50px;">
-	  	</a>
-	  	<!-- Toggle Button -->
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#togglerBar" aria-controls="togglerBar" aria-expanded="false" aria-label="Toggle navigation">
-    		<span class="glyphicon glyphicon-align-justify" style="color:rgb(241,237,74);"></span>
-  		</button>
-		<div class="collapse navbar-collapse" id="togglerBar">
-		    <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-		      <li class="nav-item active">
-		        <a class="nav-link" href="https://www.guerrasenterprises.com">Home <span class="sr-only">(current)</span></a>
-					</li>
-					<li class="nav-item">
-		        <a class="nav-link" href="index.php">Unlock</a>
-		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link" href="orders.php">Orders</a>
-		      </li>
-		    </ul>
-		    <!-- USERNAME DROPDOWN -->
-		    <ul class="nav navbar-nav navbar-right">
-		      <li class="nav-item dropdown">
-		        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="margin-right :60px;">
-		          User
-		          <span class="glyphicon glyphicon-user" ></span>
-		        </a>
-		        <ul class="dropdown-menu">
-				<?php if(($userLogin)){ ?>
-					<li class="drpItems"><a class="dropdown-item dropList" href="wallet.php"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
-		          	<li class="drpItems"><a class="dropdown-item dropList" href="account.php"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
-		          	<li class="drpItems"><a class="dropdown-item dropList" href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>	
-				<?php } ?>
-
-				<?php if(!($userLogin)){ ?>
-					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
-				<?php } ?>
-		        </ul>
-		      </li>
-		    </ul>
-	  	</div>
-
-	</nav>
-	<!-- -----------------------END OF NAVBAR------------------------->
+	    <nav class="navbar navbar-expand-lg custNav">
+            <!-- LOGO -->
+              <a class="navbar-brand" href="#">
+                  <img src="images/logo.png" style="max-width:50px;">
+              </a>
+              <!-- Toggle Button -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#togglerBar" aria-controls="togglerBar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="glyphicon glyphicon-align-justify" style="color:rgb(241,237,74);"></span>
+              </button>
+            <div class="collapse navbar-collapse" id="togglerBar">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                  <li class="nav-item active">
+                    <a class="nav-link" href="https://guerrasenterprises.com/">Home <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                    <a class="nav-link" href="index.php">Unlock</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="orders.php">Orders</a>
+                  </li>
+                </ul>
+                <!-- USERNAME DROPDOWN -->
+                <ul class="nav navbar-nav navbar-right">
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="margin-right :60px;">
+                    <?php if(isset($_SESSION['name'])){
+						echo $_SESSION['name'];
+					}else{
+						echo "User";
+					} 
+					?>
+                      <span class="glyphicon glyphicon-user" ></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li class="drpItems"><a class="dropdown-item dropList" href="wallet.php"><span class="glyphicon glyphicon-credit-card"></span> Wallet</a></li>
+                      <li class="drpItems"><a class="dropdown-item dropList" href="account.php"><span class="glyphicon glyphicon-cog"></span> Settings</a></li>
+                      <li class="drpItems"><a class="dropdown-item dropList" href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Sign out</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+    
+        </nav>
+        <!-- -----------------------END OF NAVBAR------------------------->
         <div class="container">
             <br><br>
             <div class="container">
@@ -138,20 +103,82 @@ function serviceExecute($userLogin) {
             <!-- Order Table -->
             <div class="container">
                 <div class="row">
-                    <table class="table borderless">
+                    <table class="table table-responsive">
                         <tr>
-                            <th style="width:20%;"><span class="labels">Date</th>
-                            <th style="width:60%;"><span class="labels">Order</th>
-                            <th style="width:15%;"><span class="labels">Amount</th>
-                            <th style="width:5%;"><span class="labels">Status</th>
+                            <th><span class="labels">Date</th>
+                            <th><span class="labels">IMEI</th>
+                            <th><span class="labels">Service</th>
+                            <th><span class="labels">Amount</th>
+                            <th><span class="labels">Status</th>
                         </tr>
-                        <tr>
-                            <td>hello</td>
-                            <td>hello</td>
-                            <td>hello</td>
-                            <td>hello</td>
-                        </tr>
+
+    <?php
+
+        if (isset($_GET['pageno'])) {
+            $pageno = $_GET['pageno'];
+        } else {
+            $pageno = 1;
+        }
+
+
+        $no_of_records_per_page = 10;
+        $offset = ($pageno-1) * $no_of_records_per_page; 
+
+        $total_pages_sql = "SELECT COUNT(*) from orders WHERE userId='".$user."'";
+        $result = mysqli_query($con,$total_pages_sql);
+        $total_rows = mysqli_fetch_array($result)[0];
+        $total_pages = ceil($total_rows / $no_of_records_per_page);
+
+
+
+
+
+        if (isset($_SESSION['loggedin']) && $_SESSION['userId']) {
+            $user = $_SESSION['userId'];
+            //$query ="SELECT IMEI,serviceId,amount from orders WHERE userId='".$user."'";
+            $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
+            $result = mysqli_query($con,$query);
+
+    $orders = array();
+    if (mysqli_num_rows($result) > 0) {
+        while($row = mysqli_fetch_assoc($result)) {
+            //echo "id: " . $row["IMEI"]. " - Name: " . $row["serviceId"]. " " . $row["amount"]. "<br>";
+            //$orders[] = array('IMEI' => $row['IMEI'], 'serviceId' => $row['serviceId'], 'amount' => $row['amount'] );
+        
+            echo'<tbody>';
+                echo'<tr>';
+                        echo'<td>'. $row['timestamp']."</td>"; 
+                        echo'<td>'. $row['IMEI']."</td>";
+                        echo'<td>'. $row['serviceName'].'</td>';
+                        echo'<td>'. $row['amount'].'</td>';
+                        echo'<td>test</td>';
+                echo'<tr>';
+            echo'</tbody>';
+        
+        
+        }
+    } else {
+        echo "0 results";
+    }    
+}
+
+
+?>
+                        
+                            
+                        
+                        
                     </table>
+                    <ul class="pagination">
+    <li><a href="?pageno=1">First</a></li>
+    <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
+        <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>">Prev</a>
+    </li>
+    <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
+        <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>">Next</a>
+    </li>
+    <li><a href="?pageno=<?php echo $total_pages; ?>">Last</a></li>
+</ul>
                 </div>
             </div>
         </div>

@@ -6,63 +6,21 @@ $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
-	//echo "Welcome to the member's area, " . $_SESSION['username'] . "!";
 } else {
 	$userLogin = false;
-	//echo "Please log in first to see this page.";
-	//header('Location: login.php');
 }
 
-if(isset($_POST['btnSubmit'])){
-	serviceExecute($userLogin);
+if($_SESSION['loggedin']==false){
+    header('Location:login.php');
+}else{
+    include_once 'db_config.php';
+    $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+    if (mysqli_connect_errno()) {
+	    die ('Failed to connect to MySQL: ' . mysqli_connect_error());
+    }
+    $user = '';
 }
 
-
-function serviceExecute($userLogin) {
-
-	include_once 'db_config.php';
-
-	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-	if ( mysqli_connect_errno() ) {
-		die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-	}
-
-
-	if($userLogin){
-
-		$serviceValue 	= $_POST["service"];
-		$imei 			= $_POST["imeiNo"];
-
-		$userId			= $_SESSION["userId"];
-
-		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
-		$row = mysqli_fetch_array($result);
-		//echo $row['name'];
-
-		$amount = $row['amount']; 
-		$orderId = 'O'.uniqid();
-
-		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
-		
-			if(mysqli_query($con, $sql)){
-				echo "Records inserted successfully.";
-				$serviceValue="";
-				$imei="";
-		
-				//header('Location: register.php');
-			} else{
-				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-			}
-		
-		}
-	
-	}else{
-		header('Location: login.php');
-	}
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -104,7 +62,12 @@ function serviceExecute($userLogin) {
                 <ul class="nav navbar-nav navbar-right">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" style="margin-right :60px;">
-                    User
+                    <?php if(isset($_SESSION['name'])){
+						echo $_SESSION['name'];
+					}else{
+						echo "User";
+					} 
+					?>
                     <span class="glyphicon glyphicon-user" ></span>
                     </a>
                     <ul class="dropdown-menu">

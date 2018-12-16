@@ -14,6 +14,8 @@ if ( !isset($_POST['username'], $_POST['password']) ) {
 	//die ('Username and/or password does not exist!');
 }
 
+$error = false;
+
 if ($stmt = $con->prepare('SELECT userId, password FROM accounts WHERE username = ?')) {
 
 	$stmt->bind_param('s', $_POST['username']);
@@ -35,6 +37,7 @@ if ($stmt = $con->prepare('SELECT userId, password FROM accounts WHERE username 
 		} else {
             //echo 'Incorrect username and/or password!';
             //header('Location: login.php');
+            $error = true;
 		}
 	} else {
         //echo 'Incorrect username and/or password!';
@@ -95,8 +98,8 @@ $_POST = array();
                     <span class="glyphicon glyphicon-user" ></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-						<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+                        <li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>
+						<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-pencil'></span> Signup</a></li>
                     </ul>
                 </li>
                 </ul>
@@ -119,8 +122,18 @@ $_POST = array();
                 </div>
                 <button class="btn btn-lg btn-primary btn-block" type="submit" id="loginBtn">Sign in</button>
                 <p class="mt-5 mb-3 text-danger" id="loginStat" style="display:none;">Invalid Username/Password</p>
-                <br>
                 <a href="forgot_password.php">Forgot your password?</a>
+                
+                <?php if($error){ ?>
+                    <div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    Invalid Login Credentials
+                    </div>
+                
+                <?php } ?>
+
+                
+
                 </form>
                 <!-- Footer -->
                 <br>

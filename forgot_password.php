@@ -1,5 +1,15 @@
 <?php
 
+session_start();
+
+$userLogin;
+
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
+	$userLogin = true;
+} else {
+	$userLogin = false;
+}
+
 include_once 'db_config.php';
 
 $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
@@ -73,61 +83,6 @@ function mailresetlink($to,$token){
 
 }
 
-
-
-
-
-
-
-
-/*send
-
-function sendEmail ($recipient, $hash) {
-    $to = $recipient;
-    $subject = "Reset Your Password | ProjectGuerra";
-    $message = '
-
-        Did you just forget your password ?
-        No worries! It is just too easy to get a new one.
-        Please click this link to reset your password.
-        https://projectguerra.000webhostapp.com/unlock/reset-password.php?email='.$to.'&hash='.$hash.'
-
-        '; 
-
-        $headers = 'From:noreply@projectguerra.000webhostapp.com' . "\r\n"; 
-        mail($to, $subject, $message, $headers);        
-}*/
-
-
-/*
-$to = 'dilina.desilva@gmail.com';
-$hash = '123456';
-
-$sender = 'noreply@projectguerra.000webhostapp.com';
-$recipient = 'dilina.desilva@gmail.com';
-
-$subject = "Reset Your Password";
-$message = "
-
-        Did you just forget your password ?
-        No worries! It is just too easy to get a new one.
-        Please click this link to reset your password.
-        https://projectguerra.000webhostapp.com/unlock/reset-password.php?email='.$to.'&hash='.$hash.'
-
-        ";
-
-
-$headers = 'From:' . $sender;
-
-if (mail($recipient, $subject, $message, $headers))
-{
-    echo "Message accepted";
-}
-else
-{
-    echo "Error: Message not accepted";
-}*/
-
 ?>
 
 
@@ -182,8 +137,8 @@ else
 				<?php } ?>
 
 				<?php if(!($userLogin)){ ?>
-					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-pencil'></span> Signup</a></li>
 				<?php } ?>
 		        </ul>
 		      </li>

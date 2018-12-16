@@ -1,51 +1,68 @@
 <?php
 
 session_start();
+
+$userLogin;
+
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
+	$userLogin = true;
+} else {
+	$userLogin = false;
+}
     
-$token=$_GET['token'];
-echo $_GET['token'];
-
-include_once 'db_config.php';
-$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-/*
-$email = '';
-$password = '';*/
-
-if(!isset($_POST['password'])){
+if(isset($_POST['resetBtn'])){
     $token=$_GET['token'];
-    $query="SELECT email FROM tokens WHERE token='".$token."'";
-    $result=mysqli_query($con,$query);
-    while($row=mysqli_fetch_array($result)){
-        $email=$row['email'];
-    }
-
-    if($email!=''){
-        $_SESSION['email']=$email;
-    }
-}else{ 
-    //die("Invalid link or Password already changed");
-}
-
-
-
-if(isset($_POST['password']) && isset($_SESSION['email'])){
-    echo "in -----------> in";
-    $email=$_SESSION['email'];
-
-    $x 		= ($_POST["password"]);
-    $password = password_hash($x, PASSWORD_DEFAULT);
+    echo $_GET['token'];
     
-    $query2="UPDATE accounts set password='".$password."' WHERE email='".$email."'";
-    $result2=mysqli_query($con,$query2);
-    if($result2){
-        //mysqli_query("UPDATE tokens set used=1 where token='".$token."'");
-        mysqli_query("DELETE FROM tokens WHERE token='".$token."'");
-        echo "Your password is changed successfully";
-    }else{
-        echo "An error occurred";
+    include_once 'db_config.php';
+    $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+    
+    /*
+    $email = '';
+    $password = '';*/
+    
+    if(!isset($_POST['password'])){
+        $token=$_GET['token'];
+        $query="SELECT email FROM tokens WHERE token='".$token."'";
+        $result=mysqli_query($con,$query);
+        while($row=mysqli_fetch_array($result)){
+            $email=$row['email'];
+        }
+    
+        if($email!=''){
+            $_SESSION['email']=$email;
+        }
+    }else{ 
+        //die("Invalid link or Password already changed");
     }
+
+    if(isset($_POST['password']) && isset($_SESSION['email'])){
+        echo "in -----------> in";
+        $email=$_SESSION['email'];
+    
+        $x 		= ($_POST["password"]);
+        $password = password_hash($x, PASSWORD_DEFAULT);
+        
+        $query2="UPDATE accounts set password='".$password."' WHERE email='".$email."'";
+        $result2=mysqli_query($con,$query2);
+        if($result2){
+            //mysqli_query("UPDATE tokens set used=1 where token='".$token."'");
+            mysqli_query("DELETE FROM tokens WHERE token='".$token."'");
+            echo "Your password is changed successfully";
+        }else{
+            echo "An error occurred";
+        }
+    }
+
+
+
 }
+
+
+
+
+
+
 
 ?>
 
@@ -100,8 +117,8 @@ if(isset($_POST['password']) && isset($_SESSION['email'])){
 				<?php } ?>
 
 				<?php if(!($userLogin)){ ?>
-					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>
+					<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-pencil'></span> Signup</a></li>
 				<?php } ?>
 		        </ul>
 		      </li>
@@ -133,7 +150,7 @@ if(isset($_POST['password']) && isset($_SESSION['email'])){
                 </tr>
                 <tr><td></td></tr>
                 <tr class="text-center">
-                <td colspan="2"><input type="submit" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit"></td>
+                <td colspan="2"><input type="submit" id="resetBtn" name="resetBtn" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit"></td>
                 </tr>
             </table>
             </form>

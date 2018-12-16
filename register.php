@@ -8,7 +8,15 @@ if ( mysqli_connect_errno() ) {
 	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
 }
 
-$id 		= 'U'.uniqid();
+$error = false;
+$success = false;
+
+if(isset($_POST['registerBtn'])){
+
+	
+
+
+	$id 		= 'U'.uniqid();
 $user 		= ($_POST["username"]);
 $x 			= ($_POST["password"]);
 
@@ -24,18 +32,31 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 	$sql2 	= "INSERT INTO accountBalance (userId,amount) VALUES ('$id',0)";
 
 	if((mysqli_query($con, $sql1)) && (mysqli_query($con, $sql2))){
-		echo "Records inserted successfully.";
+		//echo "Records inserted successfully.";
 		$id="";
 		$user="";
 		$password="";
 		$email="";
 
-		header('Location: register.php');
+		$success = true;
+
+		//header('Location: register.php');
 	} else{
+		$error = true;
     	echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
 	}
 
+}else{
+
+	$error = true;
+
 }
+
+
+
+}
+
+
  
 ?>
 
@@ -91,8 +112,8 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 						<span class="glyphicon glyphicon-user" ></span>
 					</a>
 					<ul class="dropdown-menu">
-						<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-credit-card'></span> Login</a></li>
-						<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-credit-card'></span> Signup</a></li>
+						<li class='drpItems'><a class='dropdown-item dropList' href='login.php'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>
+						<li class='drpItems'><a class='dropdown-item dropList' href='register.php'><span class='glyphicon glyphicon-pencil'></span> Signup</a></li>
 					</ul>
 				</li>
 			</ul>
@@ -121,9 +142,26 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 		
 			<div class="checkbox mb-3">
 			</div>
-			<button id="registerBtn" class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+			<button id="registerBtn" name="registerBtn" class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
 			<p class="mt-5 mb-3" style="display:none; color:green;" id="userCreated">User Successfully created</p>
 
+			<?php if($success){?>
+				<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+    			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    			User Successfully Created
+  				</div>
+				<a href="login.php">Return to Login</a>  
+			<?php } ?>
+
+			<?php if($error){?>
+				<div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+    			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    			Error creating account. Try Again
+  				</div>
+			<?php } ?>
+
+			
+			
 			</form>
 
 			<button id="loginBtn" style="display:none" onclick="window.location.replace('index.html')" class="btn btn-lg btn-primary btn-block">Log in</button>

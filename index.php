@@ -6,21 +6,12 @@ $userLogin;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;
+	//echo "Welcome to the member's area, " . $_SESSION['username'] . "!";
 } else {
 	$userLogin = false;
+	//echo "Please log in first to see this page.";
+	//header('Location: login.php');
 }
-
-include_once 'db_config.php';
-
-$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-if ( mysqli_connect_errno() ) {
-	die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-}
-
-
-
-
 
 if(isset($_POST['btnSubmit'])){
 	serviceExecute($userLogin);
@@ -32,7 +23,13 @@ function serviceExecute($userLogin) {
 
 	
 
-	
+	include_once 'db_config.php';
+
+	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+
+	if ( mysqli_connect_errno() ) {
+		die ('Failed to connect to MySQL: ' . mysqli_connect_error());
+	}
 
 
 	if($userLogin){
@@ -41,7 +38,23 @@ function serviceExecute($userLogin) {
 
 		if(validate_imei($_POST["imeiNo"])){
 			$imei 		= $_POST["imeiNo"];
-			echo $imei;
+
+
+			$service = $serviceValue; // APi Service iD
+			$format = "json"; // $format = "html"; display result in JSON or HTML format
+			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // APi Key
+
+			$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
+			curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+			$result = curl_exec($curl);
+			curl_close($curl);
+
+			echo $result;	
+
+
 		}else{
 			$error = "Invalid IMEI No. Please check again";
 
@@ -65,7 +78,6 @@ function serviceExecute($userLogin) {
 			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
 		
 			if(mysqli_query($con, $sql)){
-				echo "Records inserted successfully.";
 				$serviceValue="";
 				$imei="";
 		
@@ -98,16 +110,6 @@ function validate_imei($imei){
 	if ((($sum + $imei[14]) % 10) != 0) return false;
 	return true;
 }
-
-function loadServices($serviceGroup){
-
-	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-	$query = "SELECT * FROM services WHERE serviceGroup='$serviceGroup'";
-	$result = mysqli_query($con,$query);
-	return $result;
-
-}
-
 
 ?>
 
@@ -191,11 +193,9 @@ function loadServices($serviceGroup){
 			  <br><br>
 			</div>
 			<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-		  		
-				<select name="service" id="service" onchange="check();">
+		  		<select name="service" id="service" onchange="check();" required>
 					<option value="0" selected="selected">PLEASE CHOOSE CHECKER</option>
-					<!--
-						<optgroup label="iPHONE SERVICES">
+					<optgroup label="iPHONE SERVICES">
 						<option value="27">1.60$ - iPHONE GSX COMPLETE INFO - PICTURES</option>
 						<option value="102">0.20$ - iPHONE CARRIER S1</option>
 						<option value="101">0.20$ - iPHONE CARRIER S2</option>
@@ -245,49 +245,9 @@ function loadServices($serviceGroup){
 						<option value="115">2.00$ - HTC INTERNATIONAL UNLOCK</option>
 						<option value="116">1.60$ - ZTE INTERNATIONAL UNLOCK</option>
 					</optgroup>
-					-->
-					<optgroup label="iPHONE SERVICES">
-					<?php
-						$result = loadServices('iPHONE SERVICES');
-						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
-						}
-					?>  
-					</optgroup>
-
-					<optgroup label="STATUS SERVICES">
-					<?php
-						$result = loadServices('STATUS SERVICES');
-						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
-						}
-					?>  
-					</optgroup>
-
-					<optgroup label="GENERIC SERVICES">
-					<?php
-						$result = loadServices('GENERIC SERVICES');
-						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
-						}
-					?>  
-					</optgroup>
-
-					<optgroup label="UNLOCK SERVICES">
-					<?php
-						$result = loadServices('UNLOCK SERVICES');
-						while ($row = mysqli_fetch_array($result)){
-    						echo "<option>".$row['amount']."$ - ".$row['serviceDescription']."</option>";
-						}
-					?>  
-					</optgroup>
-				
-
-
-
 				</select>
 				<br><br>
-				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI">
+				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI" required>
 				<br><br>
 
 				<?php if(!empty($_SESSION['error'])){?>

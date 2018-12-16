@@ -130,7 +130,7 @@ if($_SESSION['loggedin']==false){
             <div class="container text-center">
                 <div class="row">
                     <div class="col-md-12">
-                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
                             <input type="hidden" name="cmd" value="_s-xclick">
                             <input type="hidden" name="hosted_button_id" value="HMNTC78P7Z4F6">
                             <input type="hidden" name="on0" value="Amount">Amount

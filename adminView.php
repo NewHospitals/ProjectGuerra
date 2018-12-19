@@ -1,69 +1,3 @@
-<?php
-
-session_start();
-
-$userLogin;
-
-if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
-	$userLogin = true;
-	//echo "Welcome to the member's area, " . $_SESSION['username'] . "!";
-} else {
-	$userLogin = false;
-	//echo "Please log in first to see this page.";
-	//header('Location: login.php');
-}
-
-if(isset($_POST['btnSubmit'])){
-	serviceExecute($userLogin);
-}
-
-
-function serviceExecute($userLogin) {
-
-	include_once 'db_config.php';
-
-	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
-
-	if ( mysqli_connect_errno() ) {
-		die ('Failed to connect to MySQL: ' . mysqli_connect_error());
-	}
-
-
-	if($userLogin){
-
-		$serviceValue 	= $_POST["service"];
-		$imei 			= $_POST["imeiNo"];
-
-		$userId			= $_SESSION["userId"];
-
-		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
-		$row = mysqli_fetch_array($result);
-		//echo $row['name'];
-
-		$amount = $row['amount']; 
-		$orderId = 'O'.uniqid();
-
-		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
-		
-			if(mysqli_query($con, $sql)){
-				echo "Records inserted successfully.";
-				$serviceValue="";
-				$imei="";
-		
-				//header('Location: register.php');
-			} else{
-				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-			}
-		
-		}
-	
-	}else{
-		header('Location: login.php');
-	}
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -130,21 +64,21 @@ function serviceExecute($userLogin) {
       <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h3>Add Services</h3>
+                <h3>Edit Services</h3>
                 <hr>
             </div>
         </div>
       </div>
       <div class="container">
-        <form>
+        <form action="?action=setValue" method ="post">
           <table class="table borderless">
             <tr>
-              <td>Service</td>
-              <td><input type="text" id="adminService" required></td>
+              <td>Service name</td>
+              <td><input type="text" id="serviceName" name= "serviceName" required></td>
             </tr>
             <tr>
-              <td>Price</td>
-              <td><input type="text" id="adminPrice" required></td>
+              <td>Set Price</td>
+              <td><input type="number" id="price" name = "price" step="0.01" min=0 required></td>
             </tr>
             <tr><td></td></tr>
             <tr class="text-center">
@@ -153,6 +87,43 @@ function serviceExecute($userLogin) {
           </table>
         </form>
       </div>
+			<?php
+				session_start();
+				if(isset($_GET['action'])=='setValue') {
+					setValues();
+				}
+				function setValues() {
+					include_once 'db_config.php';
+					$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+					$username = $_SESSION['name'];
+					if($username =="admin"){
+						$serviceName 	= $_POST["serviceName"];
+						$price 			= $_POST["price"];
+						$result = mysqli_query($con,"SELECT serviceDescription FROM services WHERE serviceDescription='$serviceName'");
+						$row = mysqli_fetch_array($result);
+
+						$amount = $row['serviceDescription']; 
+
+						if($amount != ""){
+							$sql 	= "UPDATE services SET amount='$price' WHERE serviceDescription='$serviceName'";
+							if(mysqli_query($con, $sql)){
+								echo '<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								Successfully updated
+							</div>';	
+							} else{
+								echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+							}
+						}else{
+							echo '<div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								Invalid Service name. Please Check Again
+							</div>';
+
+						}	
+					}
+				}
+		?>
     </div>
     <script src="scripts/home.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

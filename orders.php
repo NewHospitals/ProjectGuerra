@@ -126,7 +126,7 @@ if(!$userLogin){
         if (isset($_SESSION['loggedin']) && $_SESSION['userId']) {
             $user = $_SESSION['userId'];
             //$query ="SELECT IMEI,serviceId,amount from orders WHERE userId='".$user."'";
-            $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
+            $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount,orderStatus FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
             $result = mysqli_query($con,$query);
 
     $orders = array();
@@ -141,7 +141,7 @@ if(!$userLogin){
                         echo'<td>'. $row['IMEI']."</td>";
                         echo'<td>'. $row['serviceName'].'</td>';
                         echo'<td>'. $row['amount'].'</td>';
-                        echo'<td>test</td>';
+                        echo'<td>'. $row['orderStatus'].'</td>';
                 echo'<tr>';
             echo'</tbody>';
         

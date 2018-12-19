@@ -43,30 +43,13 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 		//header('Location: register.php');
 	} else{
 		$error = true;
-    	echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
 	}
 
 }else{
-
 	$error = true;
-
 }
-
-
-
-}
-
-
- 
+} 
 ?>
-
-
-
-
-
-
-
-
 
 <!DOCTYPE html>
 <html>

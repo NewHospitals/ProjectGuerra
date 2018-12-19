@@ -36,7 +36,7 @@ function serviceExecute($userLogin) {
 			$result = curl_exec($curl);
 			curl_close($curl);
 
-			echo $result;
+			$json = json_decode($result,true); 
 			
 		}else{
 			$error = "Invalid IMEI No. Please check again";
@@ -49,9 +49,9 @@ function serviceExecute($userLogin) {
 
 		$amount = $row['amount']; 
 		$orderId = 'O'.uniqid();
-
+		$oderStatus = $json['status'];
 		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount')";
+			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount','$oderStatus')";
 			if(mysqli_query($con, $sql)){
 				echo "Records inserted successfully.";
 				$serviceValue="";

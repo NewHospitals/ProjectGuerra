@@ -9,20 +9,18 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = false;
 }
 
-if(!isset($_GET['token'])){
-    header("Location:login.php");
-}
+// if(!isset($_GET['token'])){
+//     header("Location:login.php");
+// }
 
 if(!isset($_POST['password'])){
     $token=$_GET['token'];
-    echo $token;
     $query="SELECT email FROM tokens WHERE token='".$token."'";
     $result=mysqli_query($con,$query);
     while($row=mysqli_fetch_array($result)){
         $email=$row['email'];
     }
     if($email!=''){
-        echo $email;
         $_SESSION['email']=$email;
     }
 }else{ 
@@ -31,25 +29,36 @@ if(!isset($_POST['password'])){
     
 if(isset($_POST['resetBtn'])){
     $token=$_GET['token'];
-    echo $_GET['token'];
+    $confirmP = ($_POST['cpassword']);
+    $x 		= ($_POST["password"]);
+    $message = "";
+    $error = false;
+    $success = false;
     
     include_once 'db_config.php';
     $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
     
     if(isset($_POST['password']) && isset($_SESSION['email'])){
-        echo "in -----------> in";
-        $email=$_SESSION['email'];
-    
-        $x 		= ($_POST["password"]);
-        $password = password_hash($x, PASSWORD_DEFAULT);
+
+        if($x === $confirmP){
         
-        $query2="UPDATE accounts set password='".$password."' WHERE email='".$email."'";
-        $result2=mysqli_query($con,$query2);
-        if($result2){
-            mysqli_query($con,"DELETE FROM tokens WHERE token='".$token."'");
-            echo "Your password is changed successfully";
+            $email=$_SESSION['email'];
+            
+            $password = password_hash($x, PASSWORD_DEFAULT);
+            
+            $query2="UPDATE accounts set password='".$password."' WHERE email='".$email."'";
+            $result2=mysqli_query($con,$query2);
+            if($result2){
+                mysqli_query($con,"DELETE FROM tokens WHERE token='".$token."'");
+                $success = true;
+                $message = "Your password is changed successfully";
+            }else{
+                $error = true;
+                $message = "An error occurred";
+            }
         }else{
-            echo "An error occurred";
+            $error = true;
+            $message = "Passwords do not match";
         }
     }
 }
@@ -131,17 +140,31 @@ if(isset($_POST['resetBtn'])){
             <table class="table borderless">
                 <tr>
                     <td>New password</td>
-                    <td><input type="password" id="password" name="password"/></td>
+                    <td><input type="password" id="password" name="password" required/></td>
                 </tr>
                 <tr>
                     <td>Confirm password</td>
-                    <td><input type="password" id="confPass" required></td>
+                    <td><input type="password" id="confPass" name="cpassword" required></td>
                 </tr>
                 <tr><td></td></tr>
                 <tr class="text-center">
                 <td colspan="2"><input type="submit" id="resetBtn" name="resetBtn" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit"></td>
                 </tr>
             </table>
+            <?php if($success){?>
+				<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+    			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    			<?php echo $message ?>
+  				</div>
+				<a href="login.php">Return to Login</a>  
+			<?php } ?>
+
+			<?php if($error){?>
+				<div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+    			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    			<?php echo $message ?>
+  				</div>
+			<?php } ?>
             </form>
         </div>
         </div>

@@ -9,45 +9,51 @@ if ( mysqli_connect_errno() ) {
 }
 
 $error = false;
+$message = "";
 $success = false;
 
 if(isset($_POST['registerBtn'])){
 
-	
-
-
 	$id 		= 'U'.uniqid();
-$user 		= ($_POST["username"]);
-$x 			= ($_POST["password"]);
+	$user 		= ($_POST["username"]);
+	$x 			= ($_POST["password"]);
+	$confirmPassword = ($_POST["cpassword"]);
 
 
-$password = password_hash($x, PASSWORD_DEFAULT);
+	$password = password_hash($x, PASSWORD_DEFAULT);
 
 
-$email 		= ($_POST["email"]);
+	$email 		= ($_POST["email"]);
 
-if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))) {
+	if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))) {
+		if($x === $confirmPassword) {
 
-	$sql1 	= "INSERT INTO accounts (userId,username,password,email) VALUES ('$id','$user','$password','$email')";
-	$sql2 	= "INSERT INTO accountBalance (userId,amount) VALUES ('$id',0)";
+			$sql1 	= "INSERT INTO accounts (userId,username,password,email) VALUES ('$id','$user','$password','$email')";
+			$sql2 	= "INSERT INTO accountbalance (userId,amount) VALUES ('$id',0)";
 
-	if((mysqli_query($con, $sql1)) && (mysqli_query($con, $sql2))){
-		//echo "Records inserted successfully.";
-		$id="";
-		$user="";
-		$password="";
-		$email="";
+			if((mysqli_query($con, $sql1)) && (mysqli_query($con, $sql2))){
+				$id="";
+				$user="";
+				$password="";
+				$email="";
 
-		$success = true;
+				$success = true;
 
-		//header('Location: register.php');
-	} else{
+				//header('Location: register.php');
+			} else{
+				$error = true;
+				// $message = "Could not able to execute $sql. " . mysqli_error($con);
+				$message = "Server couldn't handle the request";
+			}
+		}else{
+			$error = true;
+			$message = "Passwords do not match.";
+		}
+
+	}else{
 		$error = true;
+		$message = "Error creating an account";
 	}
-
-}else{
-	$error = true;
-}
 } 
 ?>
 
@@ -121,12 +127,11 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 			<input type="password" id="password" name="password" class="form-control"  placeholder="Password" required>
 		
 			<label for="confirmPassword" class="sr-only">Confirm Password</label>
-			<input type="password" id="cpassword" class="form-control" style="border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; margin-bottom: 10px;" placeholder="Confirm Password" required>
+			<input type="password" id="cpassword" name="cpassword" class="form-control" style="border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; margin-bottom: 10px;" placeholder="Confirm Password" required>
 		
 			<div class="checkbox mb-3">
 			</div>
 			<button id="registerBtn" name="registerBtn" class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-			<p class="mt-5 mb-3" style="display:none; color:green;" id="userCreated">User Successfully created</p>
 
 			<?php if($success){?>
 				<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
@@ -139,11 +144,9 @@ if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))
 			<?php if($error){?>
 				<div class="alert alert-danger alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
     			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-    			Error creating account. Try Again
+    			<?php echo $message ?>
   				</div>
 			<?php } ?>
-
-			
 			
 			</form>
 

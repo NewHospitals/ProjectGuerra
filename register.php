@@ -70,7 +70,7 @@ if(isset($_POST['registerBtn'])){
 	<!-- Custom Stylesheet -->
 	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
-<body>
+<body style ="overflow:auto;">
 	<!-- -----------------------NAVBAR----------------------- -->
 	<nav class="navbar navbar-expand-lg custNav">
 		<!-- LOGO -->

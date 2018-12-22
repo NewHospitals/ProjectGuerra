@@ -119,55 +119,64 @@ if(!$userLogin){
         $total_rows = mysqli_fetch_array($result)[0];
         $total_pages = ceil($total_rows / $no_of_records_per_page);
 
-
-
-
-
         if (isset($_SESSION['loggedin']) && $_SESSION['userId']) {
             $user = $_SESSION['userId'];
             //$query ="SELECT IMEI,serviceId,amount from orders WHERE userId='".$user."'";
             $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount,orderStatus FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
             $result = mysqli_query($con,$query);
 
-    $orders = array();
-    if (mysqli_num_rows($result) > 0) {
-        while($row = mysqli_fetch_assoc($result)) {
-            //echo "id: " . $row["IMEI"]. " - Name: " . $row["serviceId"]. " " . $row["amount"]. "<br>";
-            //$orders[] = array('IMEI' => $row['IMEI'], 'serviceId' => $row['serviceId'], 'amount' => $row['amount'] );
-        
-            echo'<tbody>';
-                echo'<tr>';
-                        echo'<td>'. $row['timestamp']."</td>"; 
-                        echo'<td>'. $row['IMEI']."</td>";
-                        echo'<td>'. $row['serviceName'].'</td>';
-                        echo'<td>'. $row['amount'].'</td>';
-                        echo'<td>'. $row['orderStatus'].'</td>';
-                echo'<tr>';
-            echo'</tbody>';
-        
-        
+            $orders = array();
+            if (mysqli_num_rows($result) > 0) {
+                while($row = mysqli_fetch_assoc($result)) {
+                    //echo "id: " . $row["IMEI"]. " - Name: " . $row["serviceId"]. " " . $row["amount"]. "<br>";
+                    //$orders[] = array('IMEI' => $row['IMEI'], 'serviceId' => $row['serviceId'], 'amount' => $row['amount'] );
+                
+                    echo'<tbody>';
+                        echo'<tr>';
+                                echo'<td>'. $row['timestamp']."</td>"; 
+                                echo'<td>'. $row['IMEI']."</td>";
+                                echo'<td>'. $row['serviceName'].'</td>';
+                                echo'<td>'. $row['amount'].'</td>';
+                                echo'<td>'. $row['orderStatus'].'</td>';
+                        echo'<tr>';
+                    echo'</tbody>';
+                
+                
+                }
+            } else {
+                echo "0 results";
+            }    
         }
-    } else {
-        echo "0 results";
-    }    
-}
 
 
-?>                
+    ?>                
                     </table>
                     <br>
-                    <ul class="pagination">
-                        <li><a href="?pageno=1"><span class="glyphicon glyphicon-arrow-left"></span>First</a></li>
-                        <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-                            <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><span class="glyphicon glyphicon-chevron-left"></span>Prev </a>
-                        </li>
-                        <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                            <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>"> Next<span class="glyphicon glyphicon-chevron-right"></span></a>
-                        </li>
-                        <li><a href="?pageno=<?php echo $total_pages; ?>">Last<span class="glyphicon glyphicon-arrow-right"></a></span></li>
-                    </ul>
                 </div>
             </div>
+            <div class="container text-center">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?php if($pageno <= 1){ echo 'disabled'; } ?>">
+                    <a class="page-link" href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><span class="glyphicon glyphicon-chevron-left"></span>Previous</a>
+                </li>
+                <li class="page-item <?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
+                    <a class="page-link" href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>;">Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+                </li>
+
+                <!-- <li><a href="?pageno=1"><span class="glyphicon glyphicon-arrow-left"></span>First</a></li> -->
+                <!-- <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
+                    <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><span class="glyphicon glyphicon-chevron-left"></span>Prev </a>
+                </li> -->
+                
+                <!-- <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
+                    <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>"> Next<span class="glyphicon glyphicon-chevron-right"></span></a>
+                </li> -->
+
+                <!-- <li>
+                    <a href="?pageno=<?php echo $total_pages; ?>">Last<span class="glyphicon glyphicon-arrow-right"></a></span>
+                </li> -->
+            </ul>
+        </div>
         </div>
         <br><br>
         <script src="scripts/home.js"></script>

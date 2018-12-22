@@ -50,22 +50,29 @@ function getRandomString($length) {
 function mailresetlink($to,$token){
     $subject = "Reset Your Password";
     $uri = 'https://'. $_SERVER['HTTP_HOST'] ;
-    $message = '
-    <html>
-    <head>
-    <title>Forgot Password For unlock.guerraenterprises.com</title>
-    </head>
-        <body>
-        <p>Click on the given link to reset your password <a href="'.$uri.'/unlock/reset_password.php?token='.$token.'">Reset Password</a></p>
-        </body>
-    </html>
-    ';
+    $template = file_get_contents("mailTemplate.html");
+    foreach($variables as $key => $value)
+    {
+        $template = str_replace('{{ '.$key.' }}', $value, $template);
+    }
+
+
+    // $message = '    
+    // <html>
+    // <head>
+    // <title>Forgot Password For unlock.guerraenterprises.com</title>
+    // </head>
+    //     <body>
+    //     <p>Click on the given link to reset your password <a href="'.$uri.'/unlock/reset_password.php?token='.$token.'">Reset Password</a></p>
+    //     </body>
+    // </html>
+    // ';
 
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
     $headers .= 'From:noreply@projectguerra.000webhostapp.com' . "\r\n";
 
-    if(mail($to,$subject,$message,$headers)){
+    if(mail($to,$subject,$template,$headers)){
 	    echo "We have sent the password reset link to your  email id <b>".$to."</b>"; 
     }else{
         echo "Error: Message not accepted";

@@ -2,6 +2,8 @@
 session_start();
 include_once 'db_config.php';
 $userLogin;
+$success = false;
+$error = false;
 
 if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] == true) {
 	$userLogin = true;

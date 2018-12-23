@@ -2,6 +2,71 @@
 
 include_once 'db_config.php';
 
+$validUsername = false;
+$validEmail	   = false;
+
+
+if( isset($_POST['ajax']) && isset($_POST['name']) ){
+ $checked_arr = $_POST['name'];
+
+ $response	= array();
+ $username	= mysqli_real_escape_string($con,$_POST['name']); 
+ $sql		= "SELECT username from accounts where accounts.username='".$username."'";
+ $res		= mysqli_query($con, $sql);
+ $count		= mysqli_num_rows($res);
+ 
+ if($count > 0){
+	 $response['status'] = false;
+	 $response['msg'] = 'Username already exists.';
+ }else if(strlen($username) < 6 || strlen($username) > 15){
+	 $response['status'] = false;
+	 $response['msg'] = 'Username must be 6 to 15 characters';
+ }else if (!preg_match("/^[a-zA-Z1-9]+$/", $username)){
+	 $response['status'] = false;
+	 $response['msg'] = 'Use alphanumeric characters only.';
+ }else{
+	 $response['status'] = true;
+	 $response['msg'] = 'Username is available.';
+	 $validUsername = true;
+ }
+
+ echo json_encode($response);
+ exit;
+}
+
+
+if( isset($_POST['ajax']) && isset($_POST['email']) ){
+	$checked_arr = $_POST['email'];
+   
+	$response	= array();
+	$email	    = mysqli_real_escape_string($con,$_POST['email']); 
+	$sql		= "SELECT email from accounts where accounts.email='".$email."'";
+	$res		= mysqli_query($con, $sql);
+	$count		= mysqli_num_rows($res);
+	
+	if($count > 0){
+		$response['status'] = false;
+		$response['msg'] = 'Email already exists.';
+	}else if($count==0){
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			$response['status'] = false;
+			$response['msg'] = 'Enter valid email address.';	
+		}else{
+			$response['status'] = true;
+			$response['msg'] = 'Valid email address.';
+			$validEmail = true;
+		}
+	}
+   
+	echo json_encode($response);
+	exit;
+}
+
+
+
+
+include_once 'db_config.php';
+
 $con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
 
 if ( mysqli_connect_errno() ) {
@@ -14,6 +79,8 @@ $success = false;
 
 if(isset($_POST['registerBtn'])){
 
+	$message = "";
+
 	$id 		= 'U'.uniqid();
 	$user 		= ($_POST["username"]);
 	$x 			= ($_POST["password"]);
@@ -25,36 +92,50 @@ if(isset($_POST['registerBtn'])){
 
 	$email 		= ($_POST["email"]);
 
-	if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($email))) {
-		if($x === $confirmPassword) {
+	if ( (!empty($id)) && (!empty($user)) && (!empty($password)) && (!empty($confirmPassword)) && (!empty($email))) {
+		
+		/*if(($validEmail) && ($validUsername)){*/
+			if($x === $confirmPassword) {
 
-			$sql1 	= "INSERT INTO accounts (userId,username,password,email) VALUES ('$id','$user','$password','$email')";
-			$sql2 	= "INSERT INTO accountbalance (userId,amount) VALUES ('$id',0)";
-
-			if((mysqli_query($con, $sql1)) && (mysqli_query($con, $sql2))){
-				$id="";
-				$user="";
-				$password="";
-				$email="";
-
-				$success = true;
-
-				//header('Location: register.php');
-			} else{
+				$sql1 	= "INSERT INTO accounts (userId,username,password,email) VALUES ('$id','$user','$password','$email')";
+				$sql2 	= "INSERT INTO accountbalance (userId,amount) VALUES ('$id',0)";
+	
+				if((mysqli_query($con, $sql1)) && (mysqli_query($con, $sql2))){
+					$id="";
+					$user="";
+					$password="";
+					$email="";
+	
+					$success = true;
+	
+					//header('Location: register.php');
+				} else{
+					$error = true;
+					// $message = "Could not able to execute $sql. " . mysqli_error($con);
+					$message = "Server couldn't handle the request";
+				}
+			}else{
 				$error = true;
-				// $message = "Could not able to execute $sql. " . mysqli_error($con);
-				$message = "Server couldn't handle the request";
+				$message = "Passwords do not match.";
 			}
-		}else{
+		/*}*/
+
+		if(!$validEmail){
 			$error = true;
-			$message = "Passwords do not match.";
+			$message = "Email Already exists";
+		}
+
+		if(!$validUsername){
+			$error = true;
+			//$message = "Username Already exists";
 		}
 
 	}else{
 		$error = true;
 		$message = "Error creating an account";
 	}
-} 
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -69,6 +150,12 @@ if(isset($_POST['registerBtn'])){
 	<link rel="stylesheet" type="text/css" href="stylesheets/glyphicon.css">
 	<!-- Custom Stylesheet -->
 	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+
+	
+
+
+
+
 </head>
 <body style ="overflow:auto;">
 	<!-- -----------------------NAVBAR----------------------- -->
@@ -117,12 +204,17 @@ if(isset($_POST['registerBtn'])){
 		
 			<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
-			<label for="inputName" class="sr-only">Name</label>
-			<input type="text" id="username" name="username" class="form-control" placeholder="Name" required autofocus>
-		
+			
+				<label for="inputName" class="sr-only">Name</label>
+				<input type="text" id="username" name="username" class="form-control" placeholder="Name" required autofocus>
+				<span id="usercheck" class="help-block"></span>
+			
+
+
 			<label for="inputEmail" class="sr-only">Email Address</label>
 			<input type="email" id="email" name="email" class="form-control"  placeholder="Email Address" required>
-		
+			<span id="emailcheck" class="help-block"></span>
+
 			<label for="inputPassword" class="sr-only">Password</label>
 			<input type="password" id="password" name="password" class="form-control"  placeholder="Password" required>
 		
@@ -158,7 +250,59 @@ if(isset($_POST['registerBtn'])){
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	
+	<script type="text/javascript" charset="utf8" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.js"></script>
+	
 
+
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$('#username').keyup(function() {
+			var name = $(this).val();
+			$.ajax({
+			type: 'post',
+			data: {ajax: 1,name: name},
+			success: function(response){
+				var myArr = JSON.parse(response);
+    			console.log(myArr["msg"]);
+				console.log(myArr["status"]);
+
+				if((myArr["status"])==true){
+					$('#username').removeClass('is-invalid').addClass('is-valid');
+					$('#usercheck').hide();
+				}else{
+					$('#username').removeClass('is-valid').addClass('is-invalid');
+					$('#usercheck').show();
+					$('#usercheck').html(myArr["msg"]);
+				}
+				
+			}
+			});				
+		});
+		$('#email').keyup(function() {
+			var email = $(this).val();
+			$.ajax({
+			type: 'post',
+			data: {ajax: 1,email: email},
+			success: function(response){
+				var myArr = JSON.parse(response);
+    			console.log(myArr["msg"]);
+				console.log(myArr["status"]);
+
+				if((myArr["status"])==true){
+					$('#email').removeClass('is-invalid').addClass('is-valid');
+					$('#emailcheck').hide();
+				}else{
+					$('#email').removeClass('is-valid').addClass('is-invalid');
+					$('#emailcheck').show();
+					$('#emailcheck').html(myArr["msg"]);
+				}
+				
+			}
+			});				
+		});
+	});
+</script>
 </body>
 </html>
 

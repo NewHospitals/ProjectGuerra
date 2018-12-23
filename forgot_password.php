@@ -54,17 +54,17 @@ function mailresetlink($to,$token){
     $replace = $uri.'/unlock/reset_password.php?token='.$token;
     $search = 'LinkToPHPButton';
 
-
     $template = str_ireplace('%' . $search . '%', $replace, $template); 
 
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=iso-8859-1" . "\r\n";
     $headers .= 'From:noreply@projectguerra.000webhostapp.com' . "\r\n";
 
-    if(mail($to,$subject,$message,$headers)){
-	    echo "We have sent the password reset link to your  email id <b>".$to."</b>"; 
+    if(mail($to,$subject,$template,$headers)){
+        // echo "We have sent the password reset link to your  email id <b>".$to."</b>"; 
+        $_SESSION['success'] = "We have sent the password reset link to your  email id <b>".$to."</b>";
     }else{
-        echo "Error: Message not accepted";
+        // echo "Error: Message not accepted";
     }
 }
 ?>
@@ -159,6 +159,12 @@ function mailresetlink($to,$token){
                 </tr>
             </table>
         </form>
+        <?php if(!empty($_SESSION['success'])){ 
+            echo '<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                '.$_SESSION['success'].'
+            </div>';
+        } ?>
     </div>
     </div>
 

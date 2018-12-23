@@ -24,7 +24,7 @@ function serviceExecute($userLogin) {
 		$serviceValue 	= $_POST["service"];
 		if(validate_imei($_POST["imeiNo"])){
 			$imei 		= $_POST["imeiNo"];
-      $service = $serviceValue; // APi Service iD
+      		$service = $serviceValue; // APi Service iD
 			$format = "json"; // $format = "html"; display result in JSON or HTML format
 			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // APi Key
 
@@ -37,27 +37,28 @@ function serviceExecute($userLogin) {
 			curl_close($curl);
 
 			$json = json_decode($result,true); 
+			$userId			= $_SESSION["userId"];
+			$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
+			$row = mysqli_fetch_array($result); 
+
+			$amount = $row['amount']; 
+			$orderId = 'O'.uniqid();
+			$oderStatus = $json['status'];
+			$message = $json['result'];
+			$_SESSION['success'] = $message;
+
 			
 		}else{
 			$error = "Invalid IMEI No. Please check again";
 			$_SESSION['error'] = $error;
 		}
-
-		$userId			= $_SESSION["userId"];
-		$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
-		$row = mysqli_fetch_array($result);
-
-		$amount = $row['amount']; 
-		$orderId = 'O'.uniqid();
-		$oderStatus = $json['status'];
 		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount','$oderStatus')";
+			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus,orderSummary) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount','$oderStatus','$message')";
 			if(mysqli_query($con, $sql)){
-				echo "Records inserted successfully.";
 				$serviceValue="";
 				$imei="";		
 			} else{
-				echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+				// echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
 			}
 		}
 	}else{
@@ -90,11 +91,6 @@ function loadServices($serviceGroup){
 	return $result;
 }
 ?>
-
-
-
-
-
 
 
 <!DOCTYPE html>
@@ -172,7 +168,7 @@ function loadServices($serviceGroup){
 			</div>
 			<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 		  		
-				<select name="service" id="service" onchange="check();">
+				<select required name="service" id="service" onchange="check();">
 					<option value="0" selected="selected">PLEASE CHOOSE CHECKER</option>
 					<!--
 						<optgroup label="iPHONE SERVICES">
@@ -267,7 +263,7 @@ function loadServices($serviceGroup){
 
 				</select>
 				<br><br>
-				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI">
+				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI" required>
 				<br><br>
 
 				<?php if(!empty($_SESSION['error'])){?>
@@ -276,9 +272,18 @@ function loadServices($serviceGroup){
     					Invalid IMEI No. Please Check Again
   					</div>
 				<?php } ?>
+				
+				<?php if(!empty($_SESSION['success'])){ 
+					echo '<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						'.$_SESSION['success'].'
+					</div>';
+				} ?>
 
-				<?php $_SESSION['error']='';?>
+				<?php $_SESSION['error']='';
+				$_SESSION['success']='';?>
                 <input name="btnSubmit" type="submit" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit">
+
 		  	</form>
 		</div>
 	</div>

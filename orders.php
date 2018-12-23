@@ -122,7 +122,7 @@ if(!$userLogin){
         if (isset($_SESSION['loggedin']) && $_SESSION['userId']) {
             $user = $_SESSION['userId'];
             //$query ="SELECT IMEI,serviceId,amount from orders WHERE userId='".$user."'";
-            $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount,orderStatus FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
+            $query ="SELECT timestamp,IMEI,(SELECT serviceDescription FROM services WHERE serviceValue = orders.serviceId) AS serviceName,amount,orderStatus,orderSummary FROM orders WHERE userId='".$user."'LIMIT $offset, $no_of_records_per_page";
             $result = mysqli_query($con,$query);
 
             $orders = array();
@@ -138,6 +138,7 @@ if(!$userLogin){
                                 echo'<td>'. $row['serviceName'].'</td>';
                                 echo'<td>'. $row['amount'].'</td>';
                                 echo'<td>'. $row['orderStatus'].'</td>';
+                                echo '<tr><td colspan=5 class="text-center">'. $row['orderSummary'].'</td></tr>';
                         echo'<tr>';
                     echo'</tbody>';
                 
@@ -162,19 +163,6 @@ if(!$userLogin){
                 <li class="page-item <?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
                     <a class="page-link" href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>;">Next<span class="glyphicon glyphicon-chevron-right"></span></a>
                 </li>
-
-                <!-- <li><a href="?pageno=1"><span class="glyphicon glyphicon-arrow-left"></span>First</a></li> -->
-                <!-- <li class="<?php if($pageno <= 1){ echo 'disabled'; } ?>">
-                    <a href="<?php if($pageno <= 1){ echo '#'; } else { echo "?pageno=".($pageno - 1); } ?>"><span class="glyphicon glyphicon-chevron-left"></span>Prev </a>
-                </li> -->
-                
-                <!-- <li class="<?php if($pageno >= $total_pages){ echo 'disabled'; } ?>">
-                    <a href="<?php if($pageno >= $total_pages){ echo '#'; } else { echo "?pageno=".($pageno + 1); } ?>"> Next<span class="glyphicon glyphicon-chevron-right"></span></a>
-                </li> -->
-
-                <!-- <li>
-                    <a href="?pageno=<?php echo $total_pages; ?>">Last<span class="glyphicon glyphicon-arrow-right"></a></span>
-                </li> -->
             </ul>
         </div>
         </div>

@@ -121,10 +121,21 @@ if(!$userLogin){
                 <div class="row">
                     <div class="col-md-12">
 
-                        <!--
+                        <?php
+                            $cancel_return = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php';
+                            //here we can put cancle url when payment is Successful.
+                            $success_return = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php/success.php';
+                            //paypal call this file for ipn
+                            $notify_url = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php/ipn.php';
+                        ?>
+
                         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
                             <input type="hidden" name="cmd" value="_s-xclick">
                             <input type="hidden" name="hosted_button_id" value="HMNTC78P7Z4F6">
+                            <input type="hidden" name="notify_url" value="<?php echo $notify_url;?>" />
+                            <input type="hidden" name="cancel_return" value="<?php echo $cancel_return;?>" />
+                            <input type="hidden" name="return" value="<?php echo $success_return;?>" />
+                            <input type="hidden" name="custom" value="<?php echo $uid;?>" />
                             <input type="hidden" name="on0" value="Amount">Amount
                             <select name="os0">
                             <option value="Option 1">Option 1 $10.00 USD</option>
@@ -137,15 +148,12 @@ if(!$userLogin){
                             <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
                             <img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
                         </form>
-                        -->
+                        
 
-                        <?php
-                            $cancel_return = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php';
-                            //here we can put cancle url when payment is Successful.
-                            $success_return = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php/success.php';
-                            //paypal call this file for ipn
-                            $notify_url = "http://".$_SERVER['HTTP_HOST'].'/unlock/paypal-ipn-php/ipn.php';
-                        ?>
+
+                        <!--
+                        
+                        // Sandbox account for testing
 
                         <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_top">
                             <input type="hidden" name="cmd" value="_s-xclick">
@@ -166,6 +174,11 @@ if(!$userLogin){
                             <input type="image" src="https://www.sandbox.paypal.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
                             <img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
                         </form>
+
+                        -->
+
+
+
 
                         <?php
                         //echo $cancel_return."<br>";

@@ -23,44 +23,65 @@ function serviceExecute($userLogin) {
 	if($userLogin){
 		$serviceValue 	= $_POST["service"];
 		if(validate_imei($_POST["imeiNo"])){
-			$imei 		= $_POST["imeiNo"];
-      		$service = $serviceValue; // APi Service iD
-			$format = "json"; // $format = "html"; display result in JSON or HTML format
-			$api = "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // APi Key
+			$imei 			= $_POST["imeiNo"];
+      		$service 		= $serviceValue; // APi Service iD
+			$format 		= "json"; // $format = "html"; display result in JSON or HTML format
+			$api 			= "15R-RTU-CCH-GCV-BFR-57C-GXX-NCH"; // APi Key
 
-			$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-			curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
-			curl_setopt($curl, CURLOPT_TIMEOUT, 60);
-			$result = curl_exec($curl);
-			curl_close($curl);
-
-			$json = json_decode($result,true); 
 			$userId			= $_SESSION["userId"];
-			$result = mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
-			$row = mysqli_fetch_array($result); 
+			$result 		= mysqli_query($con,"SELECT amount FROM services WHERE serviceValue='$serviceValue'");
+			$row 			= mysqli_fetch_array($result);
 
-			$amount = $row['amount']; 
-			$orderId = 'O'.uniqid();
-			$oderStatus = $json['status'];
-			$message = $json['result'];
-			$_SESSION['success'] = $message;
+			$serviceAmount	= $row['amount'];
+			$userBalance  	= getUserBalance();
 
+			if($userBalance>$serviceAmount){
+				$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
+				curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+				curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+				curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
+				curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+				$result = curl_exec($curl);
+				curl_close($curl);
+	
+				$json = json_decode($result,true);
+ 
+				$orderId = 'O'.uniqid();
+				$oderStatus = $json['status'];
+				
+				if ( (!empty($serviceValue)) && (!empty($imei)) )  {
+					$sql = "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus) VALUES ('$orderId','$userId','$imei','$serviceValue','$serviceAmount','$oderStatus')";
+					if(mysqli_query($con, $sql)){
+						//echo "Records inserted successfully.";
+						$serviceValue="";
+						$imei="";		
+					} else{
+						//echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+					}
+
+					$sql1 = "UPDATE accountbalance SET amount = (amount-$serviceAmount) WHERE userId = '$userId' ";
+					if(mysqli_query($con, $sql1)){
+						//echo "Records inserted successfully.";		
+					} else{
+						//echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+					}
+
+
+
+
+				}
+
+			}else{
+				$error = "Not enough funds available";
+			}
+
+			 
 			
 		}else{
 			$error = "Invalid IMEI No. Please check again";
 			$_SESSION['error'] = $error;
 		}
-		if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-			$sql 	= "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus,orderSummary) VALUES ('$orderId','$userId','$imei','$serviceValue','$amount','$oderStatus','$message')";
-			if(mysqli_query($con, $sql)){
-				$serviceValue="";
-				$imei="";		
-			} else{
-				// echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-			}
-		}
+
 	}else{
 		header('Location: login.php');
 	}
@@ -90,7 +111,27 @@ function loadServices($serviceGroup){
 	$result = mysqli_query($con,$query);
 	return $result;
 }
+
+
+function getUserBalance(){
+	$con = mysqli_connect(HOST, USER, PASSWORD, DATABASE);
+	$uid = $_SESSION['userId'];
+    $query = "SELECT amount FROM accountbalance WHERE userId='$uid'";
+    $result = mysqli_query($con,$query);
+    $rowcount=mysqli_num_rows($result);
+    if($rowcount==1){
+        $row = mysqli_fetch_array($result);
+        $amount = $row['amount'];
+	}
+	return $amount;
+}
+
 ?>
+
+
+
+
+
 
 
 <!DOCTYPE html>
@@ -263,7 +304,7 @@ function loadServices($serviceGroup){
 
 				</select>
 				<br><br>
-				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI" required>
+				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI">
 				<br><br>
 
 				<?php if(!empty($_SESSION['error'])){?>
@@ -272,7 +313,7 @@ function loadServices($serviceGroup){
     					Invalid IMEI No. Please Check Again
   					</div>
 				<?php } ?>
-				
+
 				<?php if(!empty($_SESSION['success'])){ 
 					echo '<div class="alert alert-success alert-dismissible" style="margin-top:5%;margin-bottom:5%;">
 					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -280,10 +321,8 @@ function loadServices($serviceGroup){
 					</div>';
 				} ?>
 
-				<?php $_SESSION['error']='';
-				$_SESSION['success']='';?>
+				<?php $_SESSION['error']='';?>
                 <input name="btnSubmit" type="submit" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit">
-
 		  	</form>
 		</div>
 	</div>

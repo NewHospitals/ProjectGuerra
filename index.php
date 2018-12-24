@@ -35,6 +35,12 @@ function serviceExecute($userLogin) {
 			$serviceAmount	= $row['amount'];
 			$userBalance  	= getUserBalance();
 
+			 
+			
+			
+
+
+
 			if($userBalance>$serviceAmount){
 				$curl = curl_init ("https://sickw.com/api.php?format=$format&key=$api&imei=$imei&service=$service");
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -48,9 +54,12 @@ function serviceExecute($userLogin) {
  
 				$orderId = 'O'.uniqid();
 				$oderStatus = $json['status'];
+
+				$message = $json['result'];
+			    $_SESSION['success'] = $message;
 				
 				if ( (!empty($serviceValue)) && (!empty($imei)) )  {
-					$sql = "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus) VALUES ('$orderId','$userId','$imei','$serviceValue','$serviceAmount','$oderStatus')";
+					$sql = "INSERT INTO orders (orderId,userId,IMEI,serviceId,amount,orderStatus,orderSummary) VALUES ('$orderId','$userId','$imei','$serviceValue','$serviceAmount','$oderStatus',$message)";
 					if(mysqli_query($con, $sql)){
 						//echo "Records inserted successfully.";
 						$serviceValue="";
@@ -127,12 +136,6 @@ function getUserBalance(){
 }
 
 ?>
-
-
-
-
-
-
 
 <!DOCTYPE html>
 <html>
@@ -304,7 +307,7 @@ function getUserBalance(){
 
 				</select>
 				<br><br>
-				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI">
+				<input class= "text-center" id="imeiNo" type="text" name="imeiNo" placeholder="Enter IMEI" required>
 				<br><br>
 
 				<?php if(!empty($_SESSION['error'])){?>
@@ -321,7 +324,12 @@ function getUserBalance(){
 					</div>';
 				} ?>
 
-				<?php $_SESSION['error']='';?>
+				
+				<?php $_SESSION['error']='';
+				$_SESSION['success']='';?>
+
+
+
                 <input name="btnSubmit" type="submit" class="btn btn-success col-md-4" style="border-radius: 13px; height: 45px;" value="Submit">
 		  	</form>
 		</div>
